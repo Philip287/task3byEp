@@ -1,22 +1,24 @@
 package by.suprun.task3.entity;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public enum VehicleType {
-    CAR(7, 1600),
-    TRUCK(19, 17000);
+    CAR(new AtomicInteger(7), new AtomicInteger(1000)),
+    TRUCK(new AtomicInteger(14), new AtomicInteger(2000));
 
-    private int area;
-    private int weight;
+    private AtomicInteger area;
+    private AtomicInteger weight;
 
-    VehicleType(int area, int weight) {
+    VehicleType(AtomicInteger area, AtomicInteger weight) {
         this.area = area;
         this.weight = weight;
     }
 
-    public int getArea() {
+    public AtomicInteger getArea() {
         return area;
     }
 
-    public int getWeight() {
+    public AtomicInteger getWeight() {
         return weight;
     }
 }

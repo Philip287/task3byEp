@@ -1,8 +1,13 @@
 package by.suprun.task3.entity;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 
-public class Vehicle extends Thread {
+public class Vehicle implements Runnable {
+    private static final Logger logger = LogManager.getLogger();
     private int vehicleNumber;
     private VehicleType vehicleType;
 
@@ -13,6 +18,7 @@ public class Vehicle extends Thread {
 
     @Override
     public void run() {
+        final Phaser START = new Phaser();
         Thread.currentThread().setName(vehicleType.toString() + " Number = " + vehicleNumber);
         Ferry ferry = Ferry.getFerryInstance();
         boolean load = false;
@@ -24,6 +30,29 @@ public class Vehicle extends Thread {
             }
             load = ferry.loadVehicle(this);
         }
+        START.arriveAndDeregister();
+        START.awaitAdvance(0);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            logger.error(e);
+        }
+        try {
+            TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            logger.error("UnloadThread exception" + e);
+        }
+        logger.info("Daemon starts work");
+        while (true) {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            if (ferry.runToUnload()) {
+                logger.info("Ferry is unloading");
+            }
+        }
     }
 
     public int getVehicleNumber() {
@@ -31,11 +60,11 @@ public class Vehicle extends Thread {
     }
 
     public int getArea() {
-        return vehicleType.getArea();
+        return vehicleType.getArea().get();
     }
 
     public int getWeight() {
-        return vehicleType.getWeight();
+        return vehicleType.getWeight().get();
     }
 
     @Override
