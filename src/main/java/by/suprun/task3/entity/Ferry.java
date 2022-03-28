@@ -4,14 +4,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayDeque;
+import java.util.Iterator;
 import java.util.Queue;
+import java.util.concurrent.Phaser;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 
-public class Ferry {
+public class Ferry implements Iterable<Vehicle> {
     private static final Logger logger = LogManager.getLogger();
+    private static final int DEFAULT_MAX_OF_AREA = 130;
+    private static final int DEFAULT_MAX_OF_BEARING_CAPACITY = 25000;
     private static AtomicInteger area;
     private static AtomicInteger bearingCapacity;
     private static ReentrantLock reentrantLock = new ReentrantLock(true);
@@ -22,6 +26,7 @@ public class Ferry {
     private Queue<Vehicle> ferryQueue;
     private Queue<Vehicle> waitQueue;
     private AtomicBoolean isLoading = new AtomicBoolean(true);
+    private Phaser phaser;
 
     public static Ferry getFerryInstance() {
         if (!isInstanceHas.get()) {
@@ -39,62 +44,98 @@ public class Ferry {
     }
 
     private Ferry() {
+        phaser = new Phaser();
         ferryQueue = new ArrayDeque<>();
+        waitQueue = new ArrayDeque<>();
         if (area == null || bearingCapacity == null) {
-            area = new AtomicInteger(157);
-            bearingCapacity = new AtomicInteger(2000);
-            logger.info("Created ferry with default parameters area = " + area + " bearing capacity = " + bearingCapacity);
+            area = new AtomicInteger(DEFAULT_MAX_OF_AREA);
+            bearingCapacity = new AtomicInteger(DEFAULT_MAX_OF_BEARING_CAPACITY);
+            logger.info("Created ferry with default parameters area = " + area + " bearing capacity = "
+                    + bearingCapacity);
         }
         freeArea = new AtomicInteger(area.get());
         freeBearingCapacity = new AtomicInteger(bearingCapacity.get());
     }
 
-    public boolean loadVehicle(Vehicle vehicle) {
+
+    private Ferry(int areaNew, int bearingCapacityNew) {
+        phaser = new Phaser();
+        ferryQueue = new ArrayDeque<>();
+        waitQueue = new ArrayDeque<>();
+        if (area == null || bearingCapacity == null) {
+            area = new AtomicInteger(areaNew);
+            bearingCapacity = new AtomicInteger(bearingCapacityNew);
+            logger.info("Created ferry with default parameters area = " + area + " bearing capacity = "
+                    + bearingCapacity);
+        }
+        freeArea = new AtomicInteger(area.get());
+        freeBearingCapacity = new AtomicInteger(bearingCapacity.get());
+    }
+
+    @Override
+    public Iterator<Vehicle> iterator() {
+        return ferryQueue.iterator();
+    }
+
+    public void loadVehicleToWaitQueue(Vehicle vehicle) {
         reentrantLock.lock();
-        logger.info("Try load: " + Thread.currentThread().getName());
+        boolean result = waitQueue.offer(vehicle);
+        if (result) {
+            logger.info(vehicle.toString() + "is added to wait");
+        }
+        reentrantLock.unlock();
+    }
+
+    public boolean loadVehicleToFerryAndTransport(Vehicle vehicle) {
+        reentrantLock.lock();
         boolean result = false;
-        try {
-            if (isLoading.get()) {
-                if (vehicle.getArea() < freeArea.get() & vehicle.getWeight() < freeBearingCapacity.get()) {
-                    int tempFreeBeringAreaCapacity = freeBearingCapacity.get() - vehicle.getWeight();
-                    int tempFreeArea = freeArea.get() - vehicle.getArea();
-                    freeArea.getAndSet(tempFreeArea);
-                    freeBearingCapacity.getAndSet(tempFreeBeringAreaCapacity);
-                    result = ferryQueue.offer(vehicle);
-                    logger.info(Thread.currentThread().getName() + vehicle.toString() + " is loaded to queue.");
-                    if ((tempFreeArea < area.get() * 0.1)
-                            || (tempFreeBeringAreaCapacity < bearingCapacity.get() * 0.1)) {
+        if (waitQueue.contains(vehicle)) {
+            logger.info("Try load: " + Thread.currentThread().getName());
+            try {
+                if (isLoading.get()) {
+                    if (vehicle.getArea() < freeArea.get() & vehicle.getWeight() < freeBearingCapacity.get()) {
+                        int tempFreeBeringAreaCapacity = freeBearingCapacity.get() - vehicle.getWeight();
+                        int tempFreeArea = freeArea.get() - vehicle.getArea();
+                        freeArea.getAndSet(tempFreeArea);
+                        freeBearingCapacity.getAndSet(tempFreeBeringAreaCapacity);
+                        result = ferryQueue.offer(vehicle);
+                        if (result) {
+                            logger.info(Thread.currentThread().getName() + vehicle.toString() + " is loaded to ferry.");
+                            waitQueue.remove(vehicle);
+                        }
+                        if ((tempFreeArea < area.get() * 0.1)
+                                || (tempFreeBeringAreaCapacity < bearingCapacity.get() * 0.1)) {
+                            isLoading.getAndSet(false);
+                        }
+                    } else {
                         isLoading.getAndSet(false);
                     }
-                } else {
-                    isLoading.getAndSet(false);
                 }
-            } else waitQueue.offer(vehicle);
-        } finally {
-            reentrantLock.unlock();
+            } finally {
+                reentrantLock.unlock();
+            }
         }
         return result;
     }
 
-    public boolean runToUnload() {
+    public boolean runToUnload(Vehicle vehicle) {
         reentrantLock.lock();
         boolean result = false;
         try {
-            if (!isLoading.get()) {
-                for (Vehicle vehicle : ferryQueue) {
+            if (ferryQueue.contains(vehicle)) {
+                if (!isLoading.get()) {
                     logger.info("Car: " + vehicle.toString() + " is unload");
-                    ferryQueue.remove(vehicle);
+                    result = ferryQueue.remove(vehicle);
+                    if (ferryQueue.size() <= 0) {
+                        freeArea = new AtomicInteger(area.get());
+                        freeBearingCapacity = new AtomicInteger(bearingCapacity.get());
+                        logger.info("Ferry is unload");
+                    }
                 }
-                isLoading.getAndSet(true);
-                freeArea = new AtomicInteger(area.get());
-                freeBearingCapacity = new AtomicInteger(bearingCapacity.get());
-                result = true;
-                logger.info("ferry is unload");
             }
         } finally {
             reentrantLock.unlock();
         }
         return result;
-
     }
 }

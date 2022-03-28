@@ -2,31 +2,56 @@ package by.suprun.task3;
 
 import by.suprun.task3.entity.Vehicle;
 import by.suprun.task3.entity.VehicleType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Phaser;
+import java.util.concurrent.*;
 
 public class App {
-    private static final Phaser PHASER = new Phaser(1);
+    private static final Logger logger = LogManager.getLogger();
+    static boolean isDaemon = true;
+
     public static void main(String[] args) {
-        List<Vehicle> list = new ArrayList<>();
+
+        List<Vehicle> listThreadVehicle = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < 10; i++) {
             boolean temp = random.nextBoolean();
             if (temp) {
-                list.add(new Vehicle(i, VehicleType.CAR));
+                listThreadVehicle.add(new Vehicle(i, VehicleType.CAR, new Phaser()));
             } else {
-                list.add(new Vehicle(i, VehicleType.TRUCK));
+                listThreadVehicle.add(new Vehicle(i, VehicleType.TRUCK, new Phaser()));
             }
         }
-        ExecutorService service = Executors.newFixedThreadPool(list.size());
-        for (Vehicle vehicle : list) {
-            vehicle.start();
-        }
+        runWithExecutors(listThreadVehicle, isDaemon);
+    }
 
+    private static void runWithExecutors(List<Vehicle> listThreadVehicle, boolean isDaemon) {
+
+        ThreadFactory factory = new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable vehicle) {
+                Thread thread = new Thread(vehicle);
+                if (isDaemon) {
+                    thread.setDaemon(true);
+                }
+                return thread;
+            }
+        };
+
+        ExecutorService executorService = Executors.newFixedThreadPool(listThreadVehicle.size(), factory);
+
+        for (Vehicle vehicle : listThreadVehicle) {
+            executorService.execute(vehicle);
+        }
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            logger.error("Error in executorService.awaitTermination()" + e);
+        }
     }
 }

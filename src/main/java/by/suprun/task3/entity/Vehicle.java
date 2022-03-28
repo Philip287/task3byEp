@@ -5,54 +5,67 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Vehicle implements Runnable {
     private static final Logger logger = LogManager.getLogger();
+    private static ReentrantLock reentrantLock = new ReentrantLock(true);
     private int vehicleNumber;
     private VehicleType vehicleType;
+    private Phaser phaser;
+    Ferry ferry;
 
-    public Vehicle(int vehicleNumber, VehicleType vehicleType) {
+
+    public Vehicle(int vehicleNumber, VehicleType vehicleType, Phaser phaser) {
         this.vehicleNumber = vehicleNumber;
         this.vehicleType = vehicleType;
+        this.phaser = phaser;
+        ferry = Ferry.getFerryInstance();
     }
 
     @Override
     public void run() {
-        final Phaser START = new Phaser();
+        phaser.register();
+        phaser.arriveAndAwaitAdvance();
+        ferry.loadVehicleToWaitQueue(this);
+        phaser.arriveAndAwaitAdvance();
+        startLoadVehicle(this);
+        phaser.arriveAndAwaitAdvance();
+        startUnloadVehicle(this);
+        phaser.arriveAndAwaitAdvance();
+        phaser.arriveAndDeregister();
+    }
+
+    private void startLoadVehicle(Vehicle vehicle) {
+        reentrantLock.lock();
         Thread.currentThread().setName(vehicleType.toString() + " Number = " + vehicleNumber);
-        Ferry ferry = Ferry.getFerryInstance();
-        boolean load = false;
-        while (!load) {
-            try {
-                TimeUnit.SECONDS.sleep(4);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            load = ferry.loadVehicle(this);
-        }
-        START.arriveAndDeregister();
-        START.awaitAdvance(0);
         try {
-            Thread.sleep(10000);
+            TimeUnit.SECONDS.sleep(2);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " start load to ferry.");
+        boolean load = ferry.loadVehicleToFerryAndTransport(vehicle);
+        if (load){
+            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " successful load to ferry.");
+        }
+        reentrantLock.unlock();
+    }
+
+    private void startUnloadVehicle(Vehicle vehicle) {
+        reentrantLock.lock();
+        try {
+            TimeUnit.SECONDS.sleep(2);
         } catch (InterruptedException e) {
             logger.error(e);
         }
-        try {
-            TimeUnit.SECONDS.sleep(5);
-        } catch (InterruptedException e) {
-            logger.error("UnloadThread exception" + e);
+        logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " start to unload from ferry.");
+        boolean unload = ferry.runToUnload(vehicle);
+        if (unload){
+            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " successful unload from ferry.");
         }
-        logger.info("Daemon starts work");
-        while (true) {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            if (ferry.runToUnload()) {
-                logger.info("Ferry is unloading");
-            }
-        }
+        reentrantLock.unlock();
+
     }
 
     public int getVehicleNumber() {

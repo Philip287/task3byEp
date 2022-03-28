@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public enum VehicleType {
     CAR(new AtomicInteger(7), new AtomicInteger(1000)),
-    TRUCK(new AtomicInteger(14), new AtomicInteger(2000));
+    TRUCK(new AtomicInteger(14), new AtomicInteger(3500));
 
     private AtomicInteger area;
     private AtomicInteger weight;
