@@ -18,3 +18,5 @@ j
 :src/main/java/by/suprun/task3/validator/FileValidator.java,a\2\a2fa4640438c0a434adb0b6c7c7066fb6fd71848
 s
 Csrc/main/java/by/suprun/task3/validator/impl/FileValidatorImpl.java,0\8\08ef9da6a0f4d30c09d23a04802a5403402907df
+9
+	README.md,8\e\8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d

@@ -1,5 +1,6 @@
 package by.suprun.task3;
 
+import by.suprun.task3.entity.Ferry;
 import by.suprun.task3.entity.Vehicle;
 import by.suprun.task3.entity.VehicleType;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +28,8 @@ public class App {
             }
         }
         runWithExecutors(listThreadVehicle, isDaemon);
+        Thread ferry = new Thread(Ferry.getFerryInstance());
+        ferry.start();
     }
 
     private static void runWithExecutors(List<Vehicle> listThreadVehicle, boolean isDaemon) {

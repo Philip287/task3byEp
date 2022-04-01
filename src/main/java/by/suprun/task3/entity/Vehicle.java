@@ -1,6 +1,7 @@
 package by.suprun.task3.entity;
 
-import by.suprun.task3.state.impl.AbstractStateVehicle;
+import by.suprun.task3.state.AbstractVehicleState;
+import by.suprun.task3.state.RegisterToWaitQueueState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,10 +15,8 @@ public class Vehicle implements Runnable {
     private int vehicleNumber;
     private VehicleType vehicleType;
     private Phaser phaser;
-    private AbstractStateVehicle state;
-    Ferry ferry;
-
-
+    private AbstractVehicleState vehicleState;
+    private Ferry ferry;
 
     public Vehicle(int vehicleNumber, VehicleType vehicleType, Phaser phaser) {
         this.vehicleNumber = vehicleNumber;
@@ -25,68 +24,61 @@ public class Vehicle implements Runnable {
         this.phaser = phaser;
         ferry = Ferry.getFerryInstance();
     }
-    public void changeState(AbstractStateVehicle state) {
-        this.state = state;
+
+    public void changeState(AbstractVehicleState vehicleState) {
+        this.vehicleState = vehicleState;
     }
 
-    public AbstractStateVehicle getState() {
-        return state;
+    public AbstractVehicleState getState() {
+        return vehicleState;
     }
-
 
     @Override
     public void run() {
         phaser.register();
         phaser.arriveAndAwaitAdvance();
-        ferry.loadVehicleToWaitQueue(this);
-        phaser.arriveAndAwaitAdvance();
-        startLoadVehicle(this);
-        phaser.arriveAndAwaitAdvance();
-        startUnloadVehicle(this);
+        changeState(new RegisterToWaitQueueState(this));
         phaser.arriveAndAwaitAdvance();
         phaser.arriveAndDeregister();
     }
 
-
-
-    public void setState(AbstractStateVehicle state){
-        this.state = state;
-    }
-
-    private void startLoadVehicle(Vehicle vehicle) {
+    public void addVehicleToWaitQueueFerry() {
         reentrantLock.lock();
         Thread.currentThread().setName(vehicleType.toString() + " Number = " + vehicleNumber);
         try {
             TimeUnit.SECONDS.sleep(2);
+            ferry.loadVehicleToWaitQueue(this);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        } finally {
+            reentrantLock.unlock();
         }
-        logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " start load to ferry.");
-        boolean load = ferry.loadVehicleToFerryAndTransport(vehicle);
-        if (load){
-            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " successful load to ferry.");
-        }
-        reentrantLock.unlock();
     }
 
-    private void startUnloadVehicle(Vehicle vehicle) {
+    public void startLoadVehicle(Vehicle vehicle) {
+        reentrantLock.lock();
+        Thread.currentThread().setName(vehicleType.toString() + " Number = " + vehicleNumber);
+        try {
+            TimeUnit.SECONDS.sleep(2);
+            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " start load to ferry.");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            reentrantLock.unlock();
+        }
+    }
+
+    public void startUnloadVehicle(Vehicle vehicle) {
         reentrantLock.lock();
         try {
             TimeUnit.SECONDS.sleep(2);
+            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " start to unload from ferry.");
         } catch (InterruptedException e) {
             logger.error(e);
+        } finally {
+            reentrantLock.unlock();
         }
-        logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " start to unload from ferry.");
-        boolean unload = ferry.runToUnload(vehicle);
-        if (unload){
-            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " successful unload from ferry.");
-        }
-        reentrantLock.unlock();
 
-    }
-
-    public int getVehicleNumber() {
-        return vehicleNumber;
     }
 
     public int getArea() {
