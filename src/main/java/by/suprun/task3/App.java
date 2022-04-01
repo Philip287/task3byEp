@@ -9,7 +9,10 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 public class App {
     private static final Logger logger = LogManager.getLogger();
@@ -22,14 +25,16 @@ public class App {
         for (int i = 0; i < 10; i++) {
             boolean temp = random.nextBoolean();
             if (temp) {
-                listThreadVehicle.add(new Vehicle(i, VehicleType.CAR, new Phaser()));
+                listThreadVehicle.add(new Vehicle(i + 1, VehicleType.CAR));
             } else {
-                listThreadVehicle.add(new Vehicle(i, VehicleType.TRUCK, new Phaser()));
+                listThreadVehicle.add(new Vehicle(i + 1, VehicleType.TRUCK));
             }
         }
         runWithExecutors(listThreadVehicle, isDaemon);
-        Thread ferry = new Thread(Ferry.getFerryInstance());
-        ferry.start();
+        Ferry ferry = Ferry.getFerryInstance();
+        ferry.loadVehicleToFerryAndTransport();
+        ferry.runToUnload();
+
     }
 
     private static void runWithExecutors(List<Vehicle> listThreadVehicle, boolean isDaemon) {

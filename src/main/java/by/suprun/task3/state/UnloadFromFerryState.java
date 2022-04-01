@@ -15,6 +15,7 @@ public class UnloadFromFerryState extends AbstractVehicleState {
     @Override
     public void next() {
         logger.info(vehicle  + " incoming at destination");
+
     }
 
     @Override

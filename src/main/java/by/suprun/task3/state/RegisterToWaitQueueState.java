@@ -12,7 +12,6 @@ public class RegisterToWaitQueueState extends AbstractVehicleState {
         vehicle.addVehicleToWaitQueueFerry();
     }
 
-
     @Override
     public void next() {
         vehicle.changeState(new StartLoadToFerryState(vehicle));

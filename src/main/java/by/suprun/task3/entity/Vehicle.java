@@ -5,7 +5,6 @@ import by.suprun.task3.state.RegisterToWaitQueueState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -14,14 +13,12 @@ public class Vehicle implements Runnable {
     private static ReentrantLock reentrantLock = new ReentrantLock(true);
     private int vehicleNumber;
     private VehicleType vehicleType;
-    private Phaser phaser;
     private AbstractVehicleState vehicleState;
     private Ferry ferry;
 
-    public Vehicle(int vehicleNumber, VehicleType vehicleType, Phaser phaser) {
+    public Vehicle(int vehicleNumber, VehicleType vehicleType) {
         this.vehicleNumber = vehicleNumber;
         this.vehicleType = vehicleType;
-        this.phaser = phaser;
         ferry = Ferry.getFerryInstance();
     }
 
@@ -35,18 +32,14 @@ public class Vehicle implements Runnable {
 
     @Override
     public void run() {
-        phaser.register();
-        phaser.arriveAndAwaitAdvance();
         changeState(new RegisterToWaitQueueState(this));
-        phaser.arriveAndAwaitAdvance();
-        phaser.arriveAndDeregister();
     }
 
     public void addVehicleToWaitQueueFerry() {
         reentrantLock.lock();
         Thread.currentThread().setName(vehicleType.toString() + " Number = " + vehicleNumber);
         try {
-            TimeUnit.SECONDS.sleep(2);
+            TimeUnit.SECONDS.sleep(1);
             ferry.loadVehicleToWaitQueue(this);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -78,7 +71,6 @@ public class Vehicle implements Runnable {
         } finally {
             reentrantLock.unlock();
         }
-
     }
 
     public int getArea() {
