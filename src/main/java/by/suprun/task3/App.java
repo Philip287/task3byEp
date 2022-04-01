@@ -3,22 +3,18 @@ package by.suprun.task3;
 import by.suprun.task3.entity.Ferry;
 import by.suprun.task3.entity.Vehicle;
 import by.suprun.task3.entity.VehicleType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import by.suprun.task3.service.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 public class App {
-    private static final Logger logger = LogManager.getLogger();
+
     static boolean isDaemon = true;
 
     public static void main(String[] args) {
+        Service service = new Service();
 
         List<Vehicle> listThreadVehicle = new ArrayList<>();
         Random random = new Random();
@@ -30,36 +26,12 @@ public class App {
                 listThreadVehicle.add(new Vehicle(i + 1, VehicleType.TRUCK));
             }
         }
-        runWithExecutors(listThreadVehicle, isDaemon);
+        service.runWithExecutors(listThreadVehicle, isDaemon);
         Ferry ferry = Ferry.getFerryInstance();
         ferry.loadVehicleToFerryAndTransport();
         ferry.runToUnload();
 
     }
 
-    private static void runWithExecutors(List<Vehicle> listThreadVehicle, boolean isDaemon) {
 
-        ThreadFactory factory = new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable vehicle) {
-                Thread thread = new Thread(vehicle);
-                if (isDaemon) {
-                    thread.setDaemon(true);
-                }
-                return thread;
-            }
-        };
-
-        ExecutorService executorService = Executors.newFixedThreadPool(listThreadVehicle.size(), factory);
-
-        for (Vehicle vehicle : listThreadVehicle) {
-            executorService.execute(vehicle);
-        }
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(30, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            logger.error("Error in executorService.awaitTermination()" + e);
-        }
-    }
 }

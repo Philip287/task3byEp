@@ -9,7 +9,6 @@ public class StartLoadToFerryState extends AbstractVehicleState {
 
     public StartLoadToFerryState(Vehicle vehicle) {
         super(vehicle);
-        vehicle.startLoadVehicle(vehicle);
     }
 
     @Override

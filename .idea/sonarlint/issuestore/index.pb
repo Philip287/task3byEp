@@ -14,8 +14,6 @@ d
 4src/main/java/by/suprun/task3/reader/DataReader.java,1\2\12f2a51ded0afaad5db640d4dd7c5587fc7c074a
 m
 =src/main/java/by/suprun/task3/reader/impl/DataReaderImpl.java,0\8\08640f1646d0b109b5c9b650ca3551787e7a5f65
-j
-:src/main/java/by/suprun/task3/validator/FileValidator.java,a\2\a2fa4640438c0a434adb0b6c7c7066fb6fd71848
 s
 Csrc/main/java/by/suprun/task3/validator/impl/FileValidatorImpl.java,0\8\08ef9da6a0f4d30c09d23a04802a5403402907df
 9
