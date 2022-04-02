@@ -13,7 +13,9 @@ public class StartLoadToFerryState extends AbstractVehicleState {
 
     @Override
     public void next() {
+        vehicle.startLoadVehicle();
         vehicle.changeState(new WaitEndCrossingState(vehicle));
+
     }
 
     @Override

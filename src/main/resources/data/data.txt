@@ -1,0 +1,2 @@
+ferry bearing capacity: 25000
+ferry area 20

@@ -9,22 +9,21 @@ public class UnloadFromFerryState extends AbstractVehicleState {
 
     public UnloadFromFerryState(Vehicle vehicle) {
         super(vehicle);
-        vehicle.startUnloadVehicle(vehicle);
     }
 
     @Override
     public void next() {
-        logger.info(vehicle  + " incoming at destination");
-
+        vehicle.startUnloadVehicle();
+        logger.info(vehicle + " incoming at destination");
     }
 
     @Override
     public void prev() {
-        logger.info(vehicle  + " incoming at destination");
+        logger.info(vehicle + " incoming at destination");
     }
 
     @Override
     public void printStatus() {
-        logger.info(vehicle  + " start to unload from ferry");
+        logger.info(vehicle + " start to unload from ferry");
     }
 }

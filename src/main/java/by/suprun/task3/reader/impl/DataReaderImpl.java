@@ -11,11 +11,31 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DataReaderImpl implements DataReader {
     private static final Logger logger = LogManager.getLogger();
+    private static ReentrantLock reentrantLock = new ReentrantLock(true);
+    private static DataReaderImpl dataReaderImplInstance;
+    private static AtomicBoolean isInstanceHas = new AtomicBoolean(false);
+
+    public static DataReaderImpl getDataReaderImplInstance() {
+        if (!isInstanceHas.get()) {
+            reentrantLock.lock();
+            try {
+                if (dataReaderImplInstance == null) {
+                    dataReaderImplInstance = new DataReaderImpl();
+                    isInstanceHas.getAndSet(true);
+                }
+            } finally {
+                reentrantLock.unlock();
+            }
+        }
+        return dataReaderImplInstance;
+    }
 
     @Override
     public List<String> readData(String path) {

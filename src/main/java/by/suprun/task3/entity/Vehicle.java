@@ -10,11 +10,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Vehicle implements Runnable {
     private static final Logger logger = LogManager.getLogger();
-    private static ReentrantLock reentrantLock = new ReentrantLock(true);
-    private int vehicleNumber;
-    private VehicleType vehicleType;
+    private static final ReentrantLock reentrantLock = new ReentrantLock(true);
+    private final int vehicleNumber;
+    private final VehicleType vehicleType;
     private AbstractVehicleState vehicleState;
-    private Ferry ferry;
+    private final Ferry ferry;
+
 
     public Vehicle(int vehicleNumber, VehicleType vehicleType) {
         this.vehicleNumber = vehicleNumber;
@@ -40,6 +41,7 @@ public class Vehicle implements Runnable {
         Thread.currentThread().setName(vehicleType.toString() + " Number = " + vehicleNumber);
         try {
             TimeUnit.SECONDS.sleep(1);
+            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " try added to wait queue");
             ferry.loadVehicleToWaitQueue(this);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -48,12 +50,11 @@ public class Vehicle implements Runnable {
         }
     }
 
-    public void startLoadVehicle(Vehicle vehicle) {
+    public void startLoadVehicle() {
         reentrantLock.lock();
-        Thread.currentThread().setName(vehicleType.toString() + " Number = " + vehicleNumber);
         try {
             TimeUnit.SECONDS.sleep(2);
-            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " start load to ferry.");
+            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " try load to ferry");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } finally {
@@ -61,13 +62,22 @@ public class Vehicle implements Runnable {
         }
     }
 
-    public void startUnloadVehicle(Vehicle vehicle) {
+    public void startUnloadVehicle() {
         reentrantLock.lock();
         try {
-            TimeUnit.SECONDS.sleep(2);
-            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " start to unload from ferry.");
+            TimeUnit.SECONDS.sleep(1);
+            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " start unload from ferry");
         } catch (InterruptedException e) {
             logger.error(e);
+        } finally {
+            reentrantLock.unlock();
+        }
+    }
+
+    public void waitEndCrossing() {
+        reentrantLock.lock();
+        try {
+            logger.info(vehicleType.toString() + " Number = " + vehicleNumber + " is crossing on ferry");
         } finally {
             reentrantLock.unlock();
         }
