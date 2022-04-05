@@ -19,37 +19,47 @@ public class App {
     static boolean isDaemon = true;
 
     public static void main(String[] args) {
+        List<Vehicle> listThreadVehicle = prepareVehiclesList();
+
+        ExecutorService executorService = Executors.newFixedThreadPool(listThreadVehicle.size(),
+                prepareVehicleThreadsFactory());
+        submitThreadsByExecutorService(listThreadVehicle, executorService);
+        shutdownExecutorService(executorService);
+
+        Ferry ferryInstance = Ferry.getFerryInstance();
+        ferryInstance.ferryStartWork();
+    }
+
+    private static List<Vehicle> prepareVehiclesList() {
         List<Vehicle> listThreadVehicle = new ArrayList<>();
         Random random = new Random();
+
         for (int i = 0; i < 30; i++) {
-            boolean temp = random.nextBoolean();
-            if (temp) {
+            if (random.nextBoolean()) {
                 listThreadVehicle.add(new Vehicle(i + 1, VehicleType.CAR));
             } else {
                 listThreadVehicle.add(new Vehicle(i + 1, VehicleType.TRUCK));
             }
         }
-        createThreadWithExecutor(listThreadVehicle, isDaemon);
-        Ferry ferryInstance = Ferry.getFerryInstance();
-        ferryInstance.ferryStartWork();
+
+        return listThreadVehicle;
     }
 
-    public static void createThreadWithExecutor(List<Vehicle> listThreadVehicle, boolean isDaemon) {
-        ThreadFactory factory = new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable vehicle) {
-                Thread thread = new Thread(vehicle);
-                thread.setDaemon(isDaemon);
-                return thread;
-            }
+    private static ThreadFactory prepareVehicleThreadsFactory() {
+        return vehicle -> {
+            Thread thread = new Thread(vehicle);
+            thread.setDaemon(isDaemon);
+            return thread;
         };
+    }
 
-        ExecutorService executorService = Executors.newFixedThreadPool(listThreadVehicle.size(), factory);
-
+    private static void submitThreadsByExecutorService(List<Vehicle> listThreadVehicle, ExecutorService executorService) {
         for (Vehicle vehicle : listThreadVehicle) {
             executorService.submit(vehicle);
         }
+    }
 
+    private static void shutdownExecutorService(ExecutorService executorService) {
         executorService.shutdown();
 
         try {

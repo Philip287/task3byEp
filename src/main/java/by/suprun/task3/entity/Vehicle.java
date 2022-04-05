@@ -34,13 +34,6 @@ public class Vehicle implements Callable {
     @Override
     public Callable<Vehicle> call() {
         changeState(new RegisterToWaitQueueState(this));
-
-        vehicleStartLoadToFerry();
-
-        transportVehicle();
-
-        vehicleStartUnloadFromFerry();
-
         return null;
     }
 
@@ -93,11 +86,11 @@ public class Vehicle implements Callable {
     }
 
     public int getArea() {
-        return vehicleType.getArea().get();
+        return vehicleType.getAreaInSquareMeters().get();
     }
 
     public int getWeight() {
-        return vehicleType.getWeight().get();
+        return vehicleType.getWeightInKilogram().get();
     }
 
     @Override
