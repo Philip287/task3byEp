@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DataParserImpl implements DataParser {
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final String NUMBER_REGEX = "[0-9]+";
     private static final Pattern pattern = Pattern.compile(NUMBER_REGEX);
     private int ferryBearingCapacity;
@@ -17,7 +17,7 @@ public class DataParserImpl implements DataParser {
 
     @Override
     public void parser(List<String> list) {
-        logger.info("Start parsing data");
+        LOGGER.info("Start parsing data");
         Matcher matcherFerryBearingCapacity = pattern.matcher(list.get(0));
         if (matcherFerryBearingCapacity.find()) {
             ferryBearingCapacity = Integer.parseInt(list.get(0).substring(matcherFerryBearingCapacity.start(), matcherFerryBearingCapacity.end()));
@@ -31,13 +31,13 @@ public class DataParserImpl implements DataParser {
 
     @Override
     public int getFerryBearingCapacity() {
-        logger.info("Return ferry bearing capacity ");
+        LOGGER.info("Return ferry bearing capacity ");
         return ferryBearingCapacity;
     }
 
     @Override
     public int getFerryArea() {
-        logger.info("Return ferry area ");
+        LOGGER.info("Return ferry area ");
         return ferryArea;
     }
 }

@@ -9,11 +9,9 @@ public class MultithreadingException extends Exception {
         super(message);
     }
 
-
     public MultithreadingException(String message, Throwable cause) {
         super(message, cause);
     }
-
 
     public MultithreadingException(Throwable cause) {
         super(cause);

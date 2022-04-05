@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DataReaderImpl implements DataReader {
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static ReentrantLock reentrantLock = new ReentrantLock(true);
     private static DataReaderImpl dataReaderImplInstance;
     private static AtomicBoolean isInstanceHas = new AtomicBoolean(false);
@@ -39,16 +39,16 @@ public class DataReaderImpl implements DataReader {
 
     @Override
     public List<String> readData(String path) {
-        logger.info("Read file with name: " + path);
+        LOGGER.info("Read file with name: " + path);
         if (!new FileValidatorImpl().validateFile(path)) {
-            logger.error("Incorrect file");
+            LOGGER.error("Incorrect file");
         }
         ArrayList<String> lines = new ArrayList<>();
         Path pathFile = Paths.get(path);
         try (Stream<String> lineStream = Files.lines(pathFile)) {
             lines = lineStream.collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
-            logger.error("Reading fail is fail", e);
+            LOGGER.error("Reading fail is fail", e);
         }
         return lines;
     }

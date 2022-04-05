@@ -3,18 +3,5 @@ L
 .idea/codeStyles/Project.xml,6\e\6ecd6000a7b6f4a2884412ff19f74193ed089648
 T
 $.idea/codeStyles/codeStyleConfig.xml,d\d\dd7b3350c29c49497756c7f32c69a3bed18b1cba
-:
-
-.gitignore,a\5\a5cc2925ca8258af241be7e5b0381edf30266302
-s
-Csrc/main/java/by/suprun/task3/validator/impl/FileValidatorImpl.java,0\8\08ef9da6a0f4d30c09d23a04802a5403402907df
 9
 	README.md,8\e\8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
-j
-:src/main/java/by/suprun/task3/validator/FileValidator.java,a\2\a2fa4640438c0a434adb0b6c7c7066fb6fd71848
-d
-4src/main/java/by/suprun/task3/reader/DataReader.java,1\2\12f2a51ded0afaad5db640d4dd7c5587fc7c074a
-d
-4src/main/java/by/suprun/task3/parser/DataParser.java,e\3\e3d136f63e13b57e078e19243beddeed07fa3101
-t
-Dsrc/main/java/by/suprun/task3/exception/MultithreadingException.java,1\9\197e7b27854d85d512e577aacf5e3a1f8e393198

@@ -11,8 +11,4 @@ public abstract class AbstractVehicleState {
 
     public abstract void next();
 
-    public abstract void prev();
-
-    public abstract void printStatus();
-
 }

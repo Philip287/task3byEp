@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Phaser;
 
 public class App {
 
@@ -20,8 +19,6 @@ public class App {
     public static void main(String[] args) {
         Ferry ferryInstance = Ferry.getFerryInstance();
         Service service = new Service();
-        Phaser phaser = new Phaser();
-        phaser.register();
         List<Vehicle> listThreadVehicle = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < 30; i++) {

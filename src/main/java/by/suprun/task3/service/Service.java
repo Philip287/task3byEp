@@ -13,14 +13,9 @@ import java.util.concurrent.TimeUnit;
 
 
 public class Service {
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public void runWithExecutors(List<Vehicle> listThreadVehicle, boolean isDaemon) {
-        // DataReaderImpl dataReader = DataReaderImpl.getDataReaderImplInstance();
-        //  List<String> strings = dataReader.readData("/data/data.txt");
-        // DataParserImpl dataParser = new DataParserImpl();
-        //  dataParser.parser(strings);
-        Ferry ferry = Ferry.getFerryInstance();
 
         ThreadFactory factory = new ThreadFactory() {
             @Override
@@ -36,13 +31,13 @@ public class Service {
         ExecutorService executorService = Executors.newFixedThreadPool(listThreadVehicle.size(), factory);
 
         for (Vehicle vehicle : listThreadVehicle) {
-            executorService.execute(vehicle);
+            executorService.submit(vehicle);
         }
         executorService.shutdown();
         try {
             executorService.awaitTermination(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            logger.error("Error in executorService.awaitTermination()" + e);
+            LOGGER.error("Error in executorService.awaitTermination()" + e);
         }
     }
 }
