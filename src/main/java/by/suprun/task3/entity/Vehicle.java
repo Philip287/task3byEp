@@ -17,8 +17,6 @@ public class Vehicle implements Callable {
     private final Ferry ferry;
     private AbstractVehicleState vehicleState;
 
-
-
     public Vehicle(int vehicleNumber, VehicleType vehicleType) {
         this.vehicleNumber = vehicleNumber;
         this.vehicleType = vehicleType;

@@ -15,7 +15,6 @@ public class Service {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public void runWithExecutors(List<Vehicle> listThreadVehicle, boolean isDaemon) {
-
         ThreadFactory factory = new ThreadFactory() {
             @Override
             public Thread newThread(Runnable vehicle) {
@@ -32,7 +31,9 @@ public class Service {
         for (Vehicle vehicle : listThreadVehicle) {
             executorService.submit(vehicle);
         }
+
         executorService.shutdown();
+
         try {
             executorService.awaitTermination(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {

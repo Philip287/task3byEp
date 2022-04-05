@@ -10,5 +10,4 @@ public abstract class AbstractVehicleState {
     }
 
     public abstract void next();
-
 }

@@ -19,14 +19,15 @@ public class DataParserImpl implements DataParser {
     public void parser(List<String> list) {
         LOGGER.info("Start parsing data");
         Matcher matcherFerryBearingCapacity = pattern.matcher(list.get(0));
+
         if (matcherFerryBearingCapacity.find()) {
             ferryBearingCapacity = Integer.parseInt(list.get(0).substring(matcherFerryBearingCapacity.start(), matcherFerryBearingCapacity.end()));
         }
+
         Matcher matcherFerryArea = pattern.matcher(list.get(1));
         if (matcherFerryArea.find()) {
             ferryArea = Integer.parseInt(list.get(1).substring(matcherFerryArea.start(), matcherFerryArea.end()));
         }
-
     }
 
     @Override

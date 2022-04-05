@@ -12,6 +12,5 @@ public class WaitEndCrossingState extends AbstractVehicleState {
     public void next() {
         vehicle.transportVehicle();
         vehicle.changeState(new UnloadFromFerryState(vehicle));
-
     }
 }

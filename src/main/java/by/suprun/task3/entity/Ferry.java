@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-
 public class Ferry {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final int DEFAULT_MAX_OF_AREA = 130;
@@ -103,7 +102,6 @@ public class Ferry {
                 }
             } else {
                 isLoading.getAndSet(false);
-
             }
         }
         return result;

@@ -17,8 +17,7 @@ public class App {
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) {
-        Ferry ferryInstance = Ferry.getFerryInstance();
-        Service service = new Service();
+
         List<Vehicle> listThreadVehicle = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < 30; i++) {
@@ -29,8 +28,9 @@ public class App {
                 listThreadVehicle.add(new Vehicle(i + 1, VehicleType.TRUCK));
             }
         }
+        Service service = new Service();
         service.runWithExecutors(listThreadVehicle, isDaemon);
+        Ferry ferryInstance = Ferry.getFerryInstance();
         ferryInstance.ferryStartWork();
-
     }
 }

@@ -12,5 +12,4 @@ public class UnloadFromFerryState extends AbstractVehicleState {
     public void next() {
         vehicle.vehicleStartUnloadFromFerry();
     }
-
 }
