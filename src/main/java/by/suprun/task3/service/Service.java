@@ -1,6 +1,5 @@
 package by.suprun.task3.service;
 
-import by.suprun.task3.entity.Ferry;
 import by.suprun.task3.entity.Vehicle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

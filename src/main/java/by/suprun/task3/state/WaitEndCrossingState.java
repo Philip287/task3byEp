@@ -10,7 +10,8 @@ public class WaitEndCrossingState extends AbstractVehicleState {
 
     @Override
     public void next() {
-        vehicle.vehiclesCrossToDestinationOnFerry();
+        vehicle.transportVehicle();
         vehicle.changeState(new UnloadFromFerryState(vehicle));
+
     }
 }

@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -40,7 +39,7 @@ public class Vehicle implements Callable {
 
         vehicleStartLoadToFerry();
 
-        vehiclesCrossToDestinationOnFerry();
+        transportVehicle();
 
         vehicleStartUnloadFromFerry();
 
@@ -52,7 +51,6 @@ public class Vehicle implements Callable {
         Thread.currentThread().setName(vehicleType.toString() + " Number = " + vehicleNumber);
         try {
             TimeUnit.SECONDS.sleep(1);
-            LOGGER.info(vehicleType.toString() + " Number = " + vehicleNumber + " try added to wait queue");
             ferry.loadVehicleToWaitQueue(this);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -73,7 +71,7 @@ public class Vehicle implements Callable {
         }
     }
 
-    public void vehiclesCrossToDestinationOnFerry() {
+    public void transportVehicle() {
         reentrantLock.lock();
         try {
             LOGGER.info(vehicleType.toString() + " Number = " + vehicleNumber + " is crossing on ferry");

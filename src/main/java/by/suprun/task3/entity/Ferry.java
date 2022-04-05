@@ -75,22 +75,22 @@ public class Ferry {
     public void ferryStartWork() {
         while (ferryQueue.isEmpty()) {
 
-            loadVehicleFromWaitQueueToFerry();
-            ferryCross();
-            ferryUnload();
+            loadVehiclesFromWaitQueueToFerry();
+            ferryIsCross();
+            ferryStartUnload();
         }
     }
 
-    private boolean loadVehicleFromWaitQueueToFerry() {
+    private boolean loadVehiclesFromWaitQueueToFerry() {
         boolean result = false;
         for (Vehicle vehicle : waitQueue) {
             LOGGER.info("Ferry can load: " + vehicle);
-            result = loadVehicle(result, vehicle);
+            result = loadVehicleToFerry(result, vehicle);
         }
         return result;
     }
 
-    private boolean loadVehicle(boolean result, Vehicle vehicle) {
+    private boolean loadVehicleToFerry(boolean result, Vehicle vehicle) {
         while (isLoading.get()) {
             if (vehicle.getArea() < freeArea.get() & vehicle.getWeight() < freeBearingCapacity.get()) {
                 registerChangFullFerry(vehicle);
@@ -114,19 +114,23 @@ public class Ferry {
         int tempFreeArea = freeArea.get() - vehicle.getArea();
         freeArea.getAndSet(tempFreeArea);
         freeBearingCapacity.getAndSet(tempFreeBeringAreaCapacity);
+        checkLoadFerry(tempFreeBeringAreaCapacity, tempFreeArea);
+    }
+
+    private void checkLoadFerry(int tempFreeBeringAreaCapacity, int tempFreeArea) {
         if ((tempFreeArea < area.get() * COEFFICIENT)
                 || (tempFreeBeringAreaCapacity < bearingCapacity.get() * COEFFICIENT)) {
             isLoading.getAndSet(false);
         }
     }
 
-    private void ferryCross() {
+    private void ferryIsCross() {
         for (Vehicle vehicle : ferryQueue) {
             vehicle.getState().next();
         }
     }
 
-    private boolean ferryUnload() {
+    private boolean ferryStartUnload() {
         boolean result = false;
         for (Vehicle vehicle : ferryQueue) {
             if (!isLoading.get()) {

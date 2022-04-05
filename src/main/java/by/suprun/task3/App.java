@@ -31,6 +31,6 @@ public class App {
         }
         service.runWithExecutors(listThreadVehicle, isDaemon);
         ferryInstance.ferryStartWork();
-    }
 
+    }
 }
