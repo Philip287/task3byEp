@@ -22,6 +22,11 @@ public class RegisterToWaitQueueState implements VehicleState {
     @Override
     public void next(Vehicle vehicle) {
         vehicle.setState(new StartLoadToFerryState());
-        LOGGER.info(vehicle + " is started to load on ferry.");
+        try {
+            TimeUnit.SECONDS.sleep(1);
+            LOGGER.info(vehicle + " is started to load on ferry.");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

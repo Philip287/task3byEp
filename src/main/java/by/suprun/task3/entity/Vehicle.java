@@ -2,16 +2,11 @@ package by.suprun.task3.entity;
 
 import by.suprun.task3.state.RegisterToWaitQueueState;
 import by.suprun.task3.state.VehicleState;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Vehicle implements Callable<Vehicle> {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final ReentrantLock reentrantLock = new ReentrantLock(true);
     private final int vehicleNumber;
     private final VehicleType vehicleType;
     private VehicleState vehicleState;

@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,7 +26,6 @@ public class Ferry {
     private Queue<Vehicle> ferryVehicleOnBoard;
     private Queue<Vehicle> ferryWaitQueue;
     private AtomicBoolean isFerryNotLoaded = new AtomicBoolean(true);
-
 
     public static Ferry getFerryInstance() {
         if (!isInstanceHas.get()) {
@@ -48,11 +48,11 @@ public class Ferry {
         if (ferryAreaInSquareMeters == null || ferryWeightCapacity == null) {
             ferryAreaInSquareMeters = new AtomicInteger(DEFAULT_MAX_OF_FERRY_AREA_IN_SQUARE_METERS);
             ferryWeightCapacity = new AtomicInteger(DEFAULT_MAX_OF_FERRY_WEIGHT_CAPACITY);
-            LOGGER.info("Created ferry with default parameters area = " + ferryAreaInSquareMeters + " bearing capacity = "
-                    + ferryWeightCapacity);
         }
         ferryFreeAreaInSquareMeters = new AtomicInteger(ferryAreaInSquareMeters.get());
         freeFerryWeightCapacity = new AtomicInteger(ferryWeightCapacity.get());
+        LOGGER.info("Created ferry with default parameters area = " + ferryAreaInSquareMeters + " bearing capacity = "
+                + ferryWeightCapacity);
     }
 
     public void loadVehicleToFerryWaitQueue(Vehicle vehicle) {
@@ -147,5 +147,13 @@ public class Ferry {
             }
         }
         isFerryNotLoaded.getAndSet(true);
+    }
+
+    public static void setFerryAreaInSquareMeters(AtomicInteger ferryAreaInSquareMeters) {
+        Ferry.ferryAreaInSquareMeters = ferryAreaInSquareMeters;
+    }
+
+    public static void setFerryWeightCapacity(AtomicInteger ferryWeightCapacity) {
+        Ferry.ferryWeightCapacity = ferryWeightCapacity;
     }
 }
