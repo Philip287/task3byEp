@@ -9,10 +9,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class App {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -34,14 +31,13 @@ public class App {
         List<Vehicle> listThreadVehicle = new ArrayList<>();
         Random random = new Random();
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 15; i++) {
             if (random.nextBoolean()) {
                 listThreadVehicle.add(new Vehicle(i + 1, VehicleType.CAR));
             } else {
                 listThreadVehicle.add(new Vehicle(i + 1, VehicleType.TRUCK));
             }
         }
-
         return listThreadVehicle;
     }
 

@@ -1,7 +1,7 @@
 package by.suprun.task3.entity;
 
-import by.suprun.task3.state.AbstractVehicleState;
 import by.suprun.task3.state.RegisterToWaitQueueState;
+import by.suprun.task3.state.VehicleState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,81 +9,38 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Vehicle implements Callable {
+public class Vehicle implements Callable<Vehicle> {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ReentrantLock reentrantLock = new ReentrantLock(true);
     private final int vehicleNumber;
     private final VehicleType vehicleType;
-    private final Ferry ferry;
-    private AbstractVehicleState vehicleState;
+    private VehicleState vehicleState;
 
     public Vehicle(int vehicleNumber, VehicleType vehicleType) {
         this.vehicleNumber = vehicleNumber;
         this.vehicleType = vehicleType;
-        ferry = Ferry.getFerryInstance();
-    }
-
-    public void changeState(AbstractVehicleState vehicleState) {
-        this.vehicleState = vehicleState;
-    }
-
-    public AbstractVehicleState getState() {
-        return vehicleState;
     }
 
     @Override
-    public Callable<Vehicle> call() {
-        changeState(new RegisterToWaitQueueState(this));
-        return null;
-    }
-
-    public void addVehicleToWaitQueueFerry() {
-        reentrantLock.lock();
+    public Vehicle call() {
         Thread.currentThread().setName(vehicleType.toString() + " Number = " + vehicleNumber);
         try {
             TimeUnit.SECONDS.sleep(1);
-            ferry.loadVehicleToWaitQueue(this);
+            setState(new RegisterToWaitQueueState(this));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        } finally {
-            reentrantLock.unlock();
         }
+        return this;
     }
 
-    public void vehicleStartLoadToFerry() {
-        reentrantLock.lock();
-        try {
-            TimeUnit.SECONDS.sleep(2);
-            LOGGER.info(vehicleType.toString() + " Number = " + vehicleNumber + " try load to ferry");
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } finally {
-            reentrantLock.unlock();
-        }
+    public void setState(VehicleState vehicleState) {
+        this.vehicleState = vehicleState;
     }
 
-    public void transportVehicle() {
-        reentrantLock.lock();
-        try {
-            LOGGER.info(vehicleType.toString() + " Number = " + vehicleNumber + " is crossing on ferry");
-        } finally {
-            reentrantLock.unlock();
-        }
+    public void nextState() {
+        vehicleState.next(this);
     }
 
-    public boolean vehicleStartUnloadFromFerry() {
-        boolean result = false;
-        reentrantLock.lock();
-        try {
-            TimeUnit.SECONDS.sleep(1);
-            LOGGER.info(vehicleType.toString() + " Number = " + vehicleNumber + " start unload from ferry");
-        } catch (InterruptedException e) {
-            LOGGER.error(e);
-        } finally {
-            reentrantLock.unlock();
-        }
-        return result;
-    }
 
     public int getArea() {
         return vehicleType.getAreaInSquareMeters().get();
