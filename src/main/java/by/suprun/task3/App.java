@@ -3,7 +3,7 @@ package by.suprun.task3;
 import by.suprun.task3.entity.Ferry;
 import by.suprun.task3.entity.Vehicle;
 import by.suprun.task3.entity.VehicleType;
-import by.suprun.task3.reader.DataReader;
+import by.suprun.task3.reader.PropertiesReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,11 +20,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class App {
     private static final Logger LOGGER = LogManager.getLogger();
     static boolean isDaemon = true;
+    static boolean readFromProperties = false;
 
     public static void main(String[] args) {
         List<Vehicle> listThreadVehicle = prepareVehiclesList();
-        Map<String, Integer> stringIntegerMap = DataReader.readFileToParametersForFerry("property.default_ferry");
-        setFerryConfigurationFromFile(stringIntegerMap);
+        if (readFromProperties) {
+            Map<String, Integer> stringIntegerMap = PropertiesReader.readPropertiesParametersForFerry("property.default_ferry");
+            setFerryConfigurationFromProperties(stringIntegerMap);
+        }
 
         ExecutorService executorService = Executors.newFixedThreadPool(listThreadVehicle.size(),
                 prepareVehicleThreadsFactory());
@@ -73,8 +76,8 @@ public class App {
         }
     }
 
-    public static void setFerryConfigurationFromFile(Map<String, Integer> parameters) {
-        Ferry.setFerryAreaInSquareMeters(new AtomicInteger(parameters.get("MAX_OF_FERRY_AREA_IN_SQUARE_METERS")));
-        Ferry.setFerryWeightCapacity(new AtomicInteger(parameters.get("MAX_OF_FERRY_WEIGHT_CAPACITY")));
+    public static void setFerryConfigurationFromProperties(Map<String, Integer> parameters) {
+        Ferry.setFerryAreaInSquareMeters(new AtomicInteger(parameters.get("default_ferry_area_in_square_meters")));
+        Ferry.setFerryWeightCapacity(new AtomicInteger(parameters.get("default_ferry_weight_capacity")));
     }
 }

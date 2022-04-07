@@ -56,7 +56,6 @@ public class Vehicle implements Callable<Vehicle> {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-
         Vehicle vehicle = (Vehicle) obj;
         if (vehicleNumber != vehicle.vehicleNumber) return false;
         return vehicleType == vehicle.vehicleType;
