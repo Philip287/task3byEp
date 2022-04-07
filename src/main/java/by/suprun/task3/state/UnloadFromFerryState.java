@@ -10,7 +10,6 @@ public class UnloadFromFerryState implements VehicleState {
     private static final Logger LOGGER = LogManager.getLogger();
 
     @Override
-
     public void next(Vehicle vehicle) {
         try {
             TimeUnit.SECONDS.sleep(1);
